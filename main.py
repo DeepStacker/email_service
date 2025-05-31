@@ -22,7 +22,7 @@ app = FastAPI(
 
 # CORS Configuration
 origins = [
-    "https://eotp-8qhm.onrender.com",
+    "https://esotp.onrender.com",
     "http://127.0.0.1:5500",
     "http://localhost:5500",
     "http://localhost:3000",
