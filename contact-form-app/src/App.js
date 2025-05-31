@@ -10,7 +10,7 @@ import AlertContainer from './components/AlertContainer';
 import DebugPanel from './components/DebugPanel';
 // Base URL for the API
 
-const API_BASE_URL = "http://localhost:8000";
+const API_BASE_URL = "https://es-h4c2.onrender.com";
 
 function App() {
   const [currentStep, setCurrentStep] = useState(1);
