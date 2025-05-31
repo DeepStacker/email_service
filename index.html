@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact Form with OTP Verification</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .form-container {
+        padding: 40px;
+      }
+
+      .step {
+        display: none;
+      }
+
+      .step.active {
+        display: block;
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 20px;
+      }
+
+      .form-row .form-group {
+        flex: 1;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 120px;
+      }
+
+      .btn {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .btn-secondary {
+        background: #6c757d;
+        margin-right: 10px;
+        width: auto;
+      }
+
+      .otp-container {
+        text-align: center;
+        padding: 30px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        margin: 20px 0;
+      }
+
+      .otp-input {
+        font-size: 24px;
+        text-align: center;
+        letter-spacing: 8px;
+        font-weight: bold;
+        max-width: 200px;
+        margin: 20px auto;
+      }
+
+      .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        font-weight: 500;
+      }
+
+      .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+
+      .alert-info {
+        background: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+      }
+
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #ffffff;
+        border-radius: 50%;
+        border-top-color: transparent;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 10px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+      }
+
+      .step-item {
+        display: flex;
+        align-items: center;
+        margin: 0 10px;
+      }
+
+      .step-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #e1e5e9;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin-right: 10px;
+      }
+
+      .step-item.active .step-number {
+        background: #667eea;
+        color: white;
+      }
+
+      .step-item.completed .step-number {
+        background: #28a745;
+        color: white;
+      }
+
+      .debug-panel {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 30px;
+      }
+
+      .debug-panel h3 {
+        color: #495057;
+        margin-bottom: 15px;
+      }
+
+      .debug-info {
+        background: #ffffff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 10px;
+        margin: 10px 0;
+        font-family: monospace;
+        font-size: 14px;
+      }
+
+      @media (max-width: 768px) {
+        .form-row {
+          flex-direction: column;
+          gap: 0;
+        }
+
+        .container {
+          margin: 10px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .form-container {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Contact Us</h1>
+        <p>Get in touch with us. We'd love to hear from you!</p>
+      </div>
+
+      <div class="form-container">
+        <!-- Step Indicator -->
+        <div class="step-indicator">
+          <div class="step-item active" id="step-indicator-1">
+            <div class="step-number">1</div>
+            <span>Contact Info</span>
+          </div>
+          <div class="step-item" id="step-indicator-2">
+            <div class="step-number">2</div>
+            <span>Verify Email</span>
+          </div>
+          <div class="step-item" id="step-indicator-3">
+            <div class="step-number">3</div>
+            <span>Complete</span>
+          </div>
+        </div>
+
+        <!-- Alert Container -->
+        <div id="alert-container"></div>
+
+        <!-- Step 1: Contact Form -->
+        <div class="step active" id="step1">
+          <h2>Contact Information</h2>
+          <form id="contactForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required />
+              </div>
+              <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required />
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="phone">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" required />
+              </div>
+              <div class="form-group">
+                <label for="company">Company (Optional)</label>
+                <input type="text" id="company" name="company" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="subject">Subject *</label>
+              <input
+                type="text"
+                id="subject"
+                name="subject"
+                value="Contact Form Submission"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="message">Message *</label>
+              <textarea
+                id="message"
+                name="message"
+                placeholder="Tell us how we can help you..."
+                required
+              ></textarea>
+            </div>
+
+            <button type="submit" class="btn" id="sendOtpBtn">
+              <span class="btn-text">Send OTP to Email</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Step 2: OTP Verification -->
+        <div class="step" id="step2">
+          <div class="otp-container">
+            <h2>Email Verification</h2>
+            <p>We've sent a 6-digit OTP to your email address.</p>
+            <p>Please enter the code below to verify your email.</p>
+
+            <form id="otpForm">
+              <div class="form-group">
+                <label for="otp">Enter OTP Code</label>
+                <input
+                  type="text"
+                  id="otp"
+                  name="otp"
+                  class="otp-input"
+                  maxlength="6"
+                  placeholder="000000"
+                  required
+                />
+              </div>
+
+              <div style="display: flex; gap: 10px; justify-content: center">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onclick="goToStep(1)"
+                >
+                  Back
+                </button>
+                <button type="submit" class="btn" id="verifyOtpBtn">
+                  <span class="btn-text">Verify OTP</span>
+                </button>
+              </div>
+            </form>
+
+            <p style="margin-top: 20px">
+              Didn't receive the code?
+              <button
+                type="button"
+                id="resendOtpBtn"
+                style="
+                  background: none;
+                  border: none;
+                  color: #667eea;
+                  cursor: pointer;
+                  text-decoration: underline;
+                "
+              >
+                Resend OTP
+              </button>
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 3: Success -->
+        <div class="step" id="step3">
+          <div style="text-align: center; padding: 40px">
+            <div style="font-size: 4rem; color: #28a745; margin-bottom: 20px">
+              ✅
+            </div>
+            <h2>Thank You!</h2>
+            <p>
+              Your message has been sent successfully. We'll get back to you
+              within 24-48 hours.
+            </p>
+
+            <div
+              id="submissionDetails"
+              style="
+                background: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                margin: 20px 0;
+                text-align: left;
+              "
+            >
+              <!-- Submission details will be populated here -->
+            </div>
+
+            <button type="button" class="btn" onclick="resetForm()">
+              Send Another Message
+            </button>
+          </div>
+        </div>
+
+        <!-- Debug Panel (for testing) -->
+        <div class="debug-panel" id="debugPanel" style="display: none">
+          <h3>Debug Information (Testing Mode)</h3>
+          <button
+            type="button"
+            class="btn"
+            onclick="toggleDebug()"
+            style="width: auto; margin-bottom: 15px"
+          >
+            Toggle Debug Info
+          </button>
+          <div id="debugInfo"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Configuration
+      const API_BASE_URL = "http://localhost:8000";
+      let currentStep = 1;
+      let contactData = {};
+      let isDebugMode = true; // Set to false for production
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", function () {
+        if (isDebugMode) {
+          document.getElementById("debugPanel").style.display = "block";
+          loadDebugInfo();
+        }
+
+        // Form event listeners
+        document
+          .getElementById("contactForm")
+          .addEventListener("submit", handleContactSubmit);
+        document
+          .getElementById("otpForm")
+          .addEventListener("submit", handleOtpVerify);
+        document
+          .getElementById("resendOtpBtn")
+          .addEventListener("click", resendOtp);
+
+        // OTP input formatting
+        document.getElementById("otp").addEventListener("input", function (e) {
+          e.target.value = e.target.value.replace(/\D/g, "");
+        });
+      });
+
+      // Step navigation
+      function goToStep(step) {
+        // Hide all steps
+        document
+          .querySelectorAll(".step")
+          .forEach((s) => s.classList.remove("active"));
+        document
+          .querySelectorAll(".step-item")
+          .forEach((s) => s.classList.remove("active", "completed"));
+
+        // Show current step
+        document.getElementById(`step${step}`).classList.add("active");
+        document
+          .getElementById(`step-indicator-${step}`)
+          .classList.add("active");
+
+        // Mark completed steps
+        for (let i = 1; i < step; i++) {
+          document
+            .getElementById(`step-indicator-${i}`)
+            .classList.add("completed");
+        }
+
+        currentStep = step;
+      }
+
+      // Show alert
+      function showAlert(message, type = "info") {
+        const alertContainer = document.getElementById("alert-container");
+        const alertDiv = document.createElement("div");
+        alertDiv.className = `alert alert-${type}`;
+        alertDiv.innerHTML = message;
+
+        alertContainer.innerHTML = "";
+        alertContainer.appendChild(alertDiv);
+
+        // Auto-hide after 5 seconds for success messages
+        if (type === "success") {
+          setTimeout(() => {
+            alertDiv.remove();
+          }, 5000);
+        }
+      }
+
+      // Show loading state
+      function setLoading(buttonId, isLoading) {
+        const button = document.getElementById(buttonId);
+        const btnText = button.querySelector(".btn-text");
+
+        if (isLoading) {
+          button.disabled = true;
+          btnText.innerHTML = '<span class="loading"></span>Processing...';
+        } else {
+          button.disabled = false;
+          btnText.innerHTML =
+            button.id === "sendOtpBtn"
+              ? "Send OTP to Email"
+              : button.id === "verifyOtpBtn"
+              ? "Verify OTP"
+              : "Submit";
+        }
+      }
+
+      // Handle contact form submission
+      async function handleContactSubmit(e) {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        contactData = {
+          name: formData.get("name"),
+          email: formData.get("email"),
+          phone: formData.get("phone"),
+          company: formData.get("company") || null,
+          subject: formData.get("subject"),
+          message: formData.get("message"),
+        };
+
+        setLoading("sendOtpBtn", true);
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/contact/send-otp`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(contactData),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            showAlert(
+              `OTP sent successfully to ${contactData.email}`,
+              "success"
+            );
+
+            // Show OTP in debug mode
+            if (isDebugMode && result.data && result.data.otp_for_testing) {
+              showAlert(`Debug: OTP is ${result.data.otp_for_testing}`, "info");
+            }
+
+            goToStep(2);
+          } else {
+            showAlert(result.message || "Failed to send OTP", "error");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showAlert("Network error. Please check your connection.", "error");
+        } finally {
+          setLoading("sendOtpBtn", false);
+        }
+      }
+
+      // Handle OTP verification
+      async function handleOtpVerify(e) {
+        e.preventDefault();
+
+        const otp = document.getElementById("otp").value;
+
+        if (otp.length !== 6) {
+          showAlert("Please enter a 6-digit OTP", "error");
+          return;
+        }
+
+        setLoading("verifyOtpBtn", true);
+
+        try {
+          // First verify OTP
+          const verifyResponse = await fetch(
+            `${API_BASE_URL}/contact/verify-otp`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: contactData.email,
+                otp: otp,
+              }),
+            }
+          );
+
+          const verifyResult = await verifyResponse.json();
+
+          if (verifyResult.success) {
+            // Submit the contact form
+            const submitResponse = await fetch(
+              `${API_BASE_URL}/contact/submit`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  contact_data: contactData,
+                  otp: otp,
+                }),
+              }
+            );
+
+            const submitResult = await submitResponse.json();
+
+            if (submitResult.success) {
+              showSubmissionSuccess(submitResult.data);
+              goToStep(3);
+            } else {
+              showAlert(
+                submitResult.message || "Failed to submit contact form",
+                "error"
+              );
+            }
+          } else {
+            showAlert(verifyResult.message || "Invalid OTP", "error");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showAlert("Network error. Please try again.", "error");
+        } finally {
+          setLoading("verifyOtpBtn", false);
+        }
+      }
+
+      // Resend OTP
+      async function resendOtp() {
+        const resendBtn = document.getElementById("resendOtpBtn");
+        resendBtn.disabled = true;
+        resendBtn.textContent = "Sending...";
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/contact/send-otp`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(contactData),
+          });
+
+          const result = await response.json();
+
+          if (result.success) {
+            showAlert("OTP resent successfully", "success");
+
+            const otpValue = result.data?.otp_for_testing;
+
+            if (otpValue) {
+              // Auto-fill the OTP input field
+              const otpInput = document.getElementById("otp");
+              if (otpInput) {
+                otpInput.value = otpValue;
+              }
+
+              // Debug mode: Show alert
+              if (isDebugMode) {
+                showAlert(`Debug: New OTP is ${otpValue}`, "info");
+              }
+            }
+          } else {
+            showAlert(result.message || "Failed to resend OTP", "error");
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          showAlert("Failed to resend OTP", "error");
+        } finally {
+          resendBtn.disabled = false;
+          resendBtn.textContent = "Resend OTP";
+        }
+      }
+
+      // Show submission success details
+      function showSubmissionSuccess(data) {
+        const detailsDiv = document.getElementById("submissionDetails");
+        detailsDiv.innerHTML = `
+                <h4>Submission Details:</h4>
+                <p><strong>Submission ID:</strong> ${data.submission_id}</p>
+                <p><strong>Email:</strong> ${data.email}</p>
+                <p><strong>Status:</strong> Successfully submitted</p>
+                <p><strong>Next Steps:</strong> You will receive a confirmation email shortly.</p>
+            `;
+      }
+
+      // Reset form
+      function resetForm() {
+        document.getElementById("contactForm").reset();
+        document.getElementById("otpForm").reset();
+        document.getElementById("alert-container").innerHTML = "";
+        contactData = {};
+        goToStep(1);
+      }
+
+      // Debug functions
+      async function loadDebugInfo() {
+        if (!isDebugMode) return;
+
+        try {
+          const response = await fetch(`${API_BASE_URL}/contact/debug`);
+          const result = await response.json();
+
+          const debugDiv = document.getElementById("debugInfo");
+          debugDiv.innerHTML = `
+                    <div class="debug-info">
+                        <strong>API Status:</strong> ${
+                          result.success ? "Connected" : "Error"
+                        }
+                    </div>
+                    <div class="debug-info">
+                        <strong>Stored OTPs:</strong> ${
+                          result.data?.otp_store_count || 0
+                        }
+                    </div>
+                    <div class="debug-info">
+                        <strong>Rate Limits:</strong> ${
+                          result.data?.rate_limit_count || 0
+                        }
+                    </div>
+                    <div class="debug-info">
+                        <strong>Submissions:</strong> ${
+                          result.data?.submissions_count || 0
+                        }
+                    </div>
+                `;
+        } catch (error) {
+          console.error("Debug info error:", error);
+        }
+      }
+
+      function toggleDebug() {
+        const debugInfo = document.getElementById("debugInfo");
+        if (debugInfo.style.display === "none") {
+          debugInfo.style.display = "block";
+          loadDebugInfo();
+        } else {
+          debugInfo.style.display = "none";
+        }
+      }
+
+      // Test email connection
+      async function testEmailConnection() {
+        try {
+          const response = await fetch(`${API_BASE_URL}/contact/test-email`);
+          const result = await response.json();
+
+          if (result.success) {
+            showAlert("Email service is working correctly", "success");
+          } else {
+            showAlert("Email service connection failed", "error");
+          }
+        } catch (error) {
+          showAlert("Failed to test email connection", "error");
+        }
+      }
+
+      // Add test button for email (debug mode)
+      if (isDebugMode) {
+        window.testEmail = testEmailConnection;
+      }
+    </script>
+  </body>
+</html>
