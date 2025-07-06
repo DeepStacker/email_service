@@ -39,6 +39,7 @@ app = FastAPI(
 # CORS Configuration
 origins = [
     "https://email-service-1-7bm2.onrender.com",
+    "https://service-mgmt-6k27.onrender.com",
     "http://localhost:3000",
     "http://localhost:8080",
     "http://127.0.0.1:5500",
